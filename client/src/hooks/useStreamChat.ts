@@ -35,21 +35,24 @@ export const useStreamChat = async () => {
   }, [user?.id]);
 
   useEffect(() => {
+    if (!token || !user?.id || !import.meta.env.VITE_STREAM_API_KEY) return;
+    const client = StreamChat.getInstance(import.meta.env.VITE_STREAM_API_KEY);
+    let cancelled = false;
     const initChat = async () => {
-      if (!token || !user) return;
       try {
-        const client = StreamChat.getInstance(
-          import.meta.env.VITE_STREAM_API_KEY
-        );
         await client.connectUser(
           {
             id: user?.id,
-            name: user.fullName as string,
+            name:
+              user.fullName ??
+              user.username ??
+              user.primaryEmailAddress?.emailAddress ??
+              user.id,
             image: user.imageUrl,
           },
           token
         );
-        setChatClient(client);
+        if (!cancelled) setChatClient(client);
       } catch (error) {
         console.log("Error connecting to stream", error);
       }
@@ -57,9 +60,10 @@ export const useStreamChat = async () => {
     initChat();
 
     return () => {
+      cancelled = true;
       if (chatClient) chatClient.disconnectUser();
     };
-  }, [token, user, chatClient]);
+  }, [token, user?.id]);
 
   return { chatClient, loading, tokenError };
 };

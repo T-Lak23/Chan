@@ -3,7 +3,7 @@ import { generateToken } from "../config/stream.js";
 
 export const generateUserToken = async (req: any, res: Response) => {
   try {
-    const { userId } = req.auth;
+    const { userId } = req.auth();
 
     if (!userId) {
       res.status(401).json({ message: "Not authenticated" });

@@ -5,9 +5,15 @@ import { serve } from "inngest/express";
 import { inngest, functions } from "./config/inngest.js";
 import { ENV } from "./config/env.js";
 import userRoute from "./route/user.route.js";
-
+import cors from "cors";
 const app = express();
 
+app.use(
+  cors({
+    origin: ENV.CLIENT_URL,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(clerkMiddleware());
 
